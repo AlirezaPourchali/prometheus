@@ -1,0 +1,42 @@
+version: '3'
+
+networks:
+  monitoring:
+    driver: bridge
+    
+volumes:
+  prometheus_data: {}
+
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: monitoring_prometheus
+    restart: unless-stopped
+    volumes:
+      - ./alerts.yml:/etc/prometheus/alerts.yml
+      - ./prometheus.rules.yml:/etc/prometheus/prometheus.rules.yml
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - '9090:9090'
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana
+    container_name: monitoring_grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=qwepoi0012
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - '3000:3000'
+    networks:
+      - monitoring

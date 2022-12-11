@@ -1,0 +1,10 @@
+groups:
+  - name: server_is_down
+    rules: 
+      - alert: server_is_down
+        expr: up == 0 
+        for: 1m
+        labels:
+          severity: page
+        annotations:
+          summary: server is down
